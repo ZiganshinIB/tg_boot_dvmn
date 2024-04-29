@@ -23,5 +23,8 @@ nano .env
 Заполняется следующим способом
 ```text
 export DEVMAN_TOKEN='Ваш_токен'
+export TELEGRAM_BOT_TOKEN='Токен_для_телеграм_бота'
 ```
 *Токен от DEVMAN можно найти [тут](https://dvmn.org/api/docs/)*
+<br>
+*Как получить токен для телеграм бота описана [тут](https://core.telegram.org/bots#how-do-i-create-a-bot)*
