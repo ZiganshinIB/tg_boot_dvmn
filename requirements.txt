@@ -1,3 +1,4 @@
-aiogram~=2.21
+aiohttp
+aiogram==3.5.0
 requests~=2.31
 environs~=11.0
