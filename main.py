@@ -8,5 +8,6 @@ env.read_env()
 
 if __name__ == '__main__':
     dvmn = Devman(env.str('DEVMAN_TOKEN'))
-    # print(json.dumps(dvmn.get_reviews(), indent=4, ensure_ascii=False))
-    print(json.dumps(dvmn.get_long_polling(), indent=4, ensure_ascii=False))
+    while True:
+        print(json.dumps(dvmn.get_reviews(), indent=4, ensure_ascii=False))
+        print(json.dumps(dvmn.get_long_polling(), indent=4, ensure_ascii=False))
