@@ -5,3 +5,7 @@
 ## Требования 
 * Python3.7 и старше
 
+## Подготовка
+```shell
+pip install -r requirements.txt
+```
