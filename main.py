@@ -28,7 +28,6 @@ if __name__ == '__main__':
                     else:
                         text += 'Преподавателю все понравилось, можно ладить дальше.'
                     bot.send_message(text=text, chat_id=env.str('TELEGRAM_CHAT_ID'), parse_mode='Markdown')
-                bot.send_message(text='Преподаватель проверил работу!', chat_id=env.str('TELEGRAM_CHAT_ID'))
             if "timestamp_to_request" in raw_data:
                 timestamp = raw_data['timestamp_to_request']
             else:
