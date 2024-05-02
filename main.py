@@ -1,41 +1,40 @@
 from environs import Env
-from requests import exceptions
+import requests
 import telegram
-import time
-import json
+import logging
 
-from api_dvmn import Devman
 
-env = Env()
-env.read_env()
-
-bot = telegram.Bot(token=env.str('TELEGRAM_BOT_TOKEN'))
-
-timestamp = None
+def get_long_polling_data(token, timestamp=None):
+    kwargs = {'url': 'https://dvmn.org/api/long_polling/',
+              'headers': {'Authorization': f'Token {token}'}}
+    if timestamp is None:
+        kwargs['params'] = {'timestamp': str(timestamp)}
+    response = requests.get(**kwargs)
+    response.raise_for_status()
+    response_long_polling = response.json()
+    return response_long_polling
 
 
 if __name__ == '__main__':
-    dvmn = Devman(env.str('DEVMAN_TOKEN'))
+    logging.basicConfig(filename="log.log", level=logging.INFO)
+    env = Env()
+    env.read_env()
+    bot = telegram.Bot(token=env.str('TELEGRAM_BOT_TOKEN'))
+    timestamp = None
     while True:
         try:
-            raw_data = json.loads(json.dumps(dvmn.get_long_polling(timestamp), indent=4, ensure_ascii=False))
-            print(raw_data)
-            if raw_data['status'] == 'found':
-                for attempt in raw_data['new_attempts']:
+            data_long_polling = get_long_polling_data(env.str('DEVMAN_TOKEN'), timestamp)
+            if data_long_polling['status'] == 'found':
+                for attempt in data_long_polling['new_attempts']:
                     text = f'У вас проверили работу [«{attempt["lesson_title"]}»]({attempt["lesson_url"]})\n'
-                    if attempt['is_negative']:
-                        text += 'К сожалению, в работе есть ошибки.'
-                    else:
-                        text += 'Преподавателю все понравилось, можно ладить дальше.'
+                    text += 'К сожалению, в работе есть ошибки.' if attempt['is_negative'] \
+                        else 'Преподавателю все понравилось, можно ладить дальше.'
                     bot.send_message(text=text, chat_id=env.str('TELEGRAM_CHAT_ID'), parse_mode='Markdown')
-            if "timestamp_to_request" in raw_data:
-                timestamp = raw_data['timestamp_to_request']
+            if "timestamp_to_request" in data_long_polling:
+                timestamp = data_long_polling['timestamp_to_request']
             else:
-                timestamp = raw_data['last_attempt_timestamp']
-
-        except exceptions.ReadTimeout as e:
-            print(e)
-        except exceptions.ConnectionError as e:
-            print(e)
-            print('Ошибка соединения. Повторная попытка через 5 секунд')
-            time.sleep(5)
+                timestamp = data_long_polling['last_attempt_timestamp']
+        except requests.exceptions.ReadTimeout as e:
+            logging.error("Timeout error: %s", e)
+        except requests.exceptions.ConnectionError as e:
+            logging.error("Connection error: %s", e)
