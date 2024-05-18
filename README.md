@@ -30,4 +30,3 @@ export TELEGRAM_CHAT_ID=1
 <br>
 *Как получить токен для телеграм бота описана [тут](https://core.telegram.org/bots#how-do-i-create-a-bot)*
 *TELEGRAM_CHAT_ID стоить указывать свой telegram id
-*test
