@@ -2,8 +2,6 @@ import logging
 from settings import BOT, ADMIN_CHAT_ID
 
 
-
-
 class MyLogsHandler(logging.Handler):
     def emit(self, record):
         log_entry = self.format(record)

@@ -31,7 +31,10 @@ if __name__ == '__main__':
                 timestamp = reviews['timestamp_to_request']
             else:
                 timestamp = reviews['last_attempt_timestamp']
+
         except requests.exceptions.ReadTimeout as e:
-            logging.error("Timeout error: %s", e)
+            logger.error(e, exc_info=True)
         except requests.exceptions.ConnectionError as e:
-            logging.error("Connection error: %s", e)
+            logger.error(e, exc_info=True)
+        except Exception as e:
+            logger.error(e, exc_info=True)
