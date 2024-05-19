@@ -1,7 +1,7 @@
-from environs import Env
 import requests
-import telegram
 import logging
+from settings import BOT, DEVMAN_TOKEN, ADMIN_CHAT_ID
+from logger import MyLogsHandler
 
 
 def get_reviews(token, timestamp=None):
@@ -13,20 +13,20 @@ def get_reviews(token, timestamp=None):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename="log.log", level=logging.INFO)
-    env = Env()
-    env.read_env()
-    bot = telegram.Bot(token=env.str('TELEGRAM_BOT_TOKEN'))
+    logger = logging.getLogger("Bot_Loger")
+    logger.setLevel(logging.INFO)
+    logger.addHandler(MyLogsHandler())
+    logger.info("Bot started")
     timestamp = None
     while True:
         try:
-            reviews = get_reviews(env.str('DEVMAN_TOKEN'), timestamp)
+            reviews = get_reviews(DEVMAN_TOKEN, timestamp)
             if reviews['status'] == 'found':
                 for attempt in reviews['new_attempts']:
                     text = f'У вас проверили работу [«{attempt["lesson_title"]}»]({attempt["lesson_url"]})\n'
                     text += 'К сожалению, в работе есть ошибки.' if attempt['is_negative'] \
                         else 'Преподавателю все понравилось, можно ладить дальше.'
-                    bot.send_message(text=text, chat_id=env.str('TELEGRAM_CHAT_ID'), parse_mode='Markdown')
+                    BOT.send_message(text=text, chat_id=ADMIN_CHAT_ID, parse_mode='Markdown')
             if "timestamp_to_request" in reviews:
                 timestamp = reviews['timestamp_to_request']
             else:
