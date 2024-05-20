@@ -1,8 +1,11 @@
+import time
+
 import requests
 import logging
-from settings import BOT, DEVMAN_TOKEN, ADMIN_CHAT_ID
-from logger import MyLogsHandler
+from dotenv import load_dotenv
 
+logger = logging.getLogger("Bot_Loger")
+logger.setLevel(logging.INFO)
 
 def get_reviews(token, timestamp=None):
     response = requests.get(url='https://dvmn.org/api/long_polling/', headers={'Authorization': f'Token {token}'},
@@ -13,11 +16,13 @@ def get_reviews(token, timestamp=None):
 
 
 if __name__ == '__main__':
-    logger = logging.getLogger("Bot_Loger")
-    logger.setLevel(logging.INFO)
-    logger.addHandler(MyLogsHandler())
+    load_dotenv()
+    from settings import BOT, DEVMAN_TOKEN, ADMIN_CHAT_ID
+    from logger import MyLogsHandler
+    logger.addHandler(MyLogsHandler(bot=BOT, chat_id=ADMIN_CHAT_ID))
     logger.info("Bot started")
     timestamp = None
+
     while True:
         try:
             reviews = get_reviews(DEVMAN_TOKEN, timestamp)
@@ -35,6 +40,8 @@ if __name__ == '__main__':
         except requests.exceptions.ReadTimeout as e:
             logger.error(e, exc_info=True)
         except requests.exceptions.ConnectionError as e:
-            logger.error(e, exc_info=True)
+            time.sleep(15)
+            logger.critical(e, exc_info=True)
         except Exception as e:
             logger.error(e, exc_info=True)
+            time.sleep(5)
