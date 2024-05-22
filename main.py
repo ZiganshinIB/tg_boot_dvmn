@@ -1,11 +1,14 @@
 import time
-
+import telegram
+import os
 import requests
 import logging
 from dotenv import load_dotenv
+from logger import MyLogsHandler
 
 logger = logging.getLogger("Bot_Loger")
 logger.setLevel(logging.INFO)
+
 
 def get_reviews(token, timestamp=None):
     response = requests.get(url='https://dvmn.org/api/long_polling/', headers={'Authorization': f'Token {token}'},
@@ -17,8 +20,9 @@ def get_reviews(token, timestamp=None):
 
 if __name__ == '__main__':
     load_dotenv()
-    from settings import BOT, DEVMAN_TOKEN, ADMIN_CHAT_ID
-    from logger import MyLogsHandler
+    BOT = telegram.Bot(token=os.getenv('TELEGRAM_BOT_TOKEN'))
+    DEVMAN_TOKEN = os.getenv('DEVMAN_TOKEN')
+    ADMIN_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
     logger.addHandler(MyLogsHandler(bot=BOT, chat_id=ADMIN_CHAT_ID))
     logger.info("Bot started")
     timestamp = None

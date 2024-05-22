@@ -8,6 +8,7 @@ class MyLogsHandler(logging.Handler):
         super().__init__()
         self.bot = bot
         self.chat_id = chat_id
+
     def emit(self, record, **kwargs):
         log_entry = self.format(record)
         if record.levelname == 'CRITICAL':
@@ -15,7 +16,6 @@ class MyLogsHandler(logging.Handler):
             with open('log.log', 'a') as f:
                 f.write(log_entry + '\n')
         try:
-
             self.bot.send_message(text=log_entry, chat_id=self.chat_id,)
         except Exception as e:
             new_record = logging.LogRecord(
