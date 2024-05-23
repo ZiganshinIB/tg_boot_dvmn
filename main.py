@@ -6,8 +6,8 @@ import logging
 from dotenv import load_dotenv
 from logger import MyLogsHandler
 
-logger = logging.getLogger("Bot_Loger")
-logger.setLevel(logging.INFO)
+
+logger = logging.getLogger('Bot_Loger')
 
 
 def get_reviews(token, timestamp=None):
@@ -20,22 +20,23 @@ def get_reviews(token, timestamp=None):
 
 if __name__ == '__main__':
     load_dotenv()
-    BOT = telegram.Bot(token=os.getenv('TELEGRAM_BOT_TOKEN'))
-    DEVMAN_TOKEN = os.getenv('DEVMAN_TOKEN')
-    ADMIN_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
-    logger.addHandler(MyLogsHandler(bot=BOT, chat_id=ADMIN_CHAT_ID))
+    logger.setLevel(logging.INFO)
+    bot = telegram.Bot(token=os.getenv('TELEGRAM_BOT_TOKEN'))
+    devman_token = os.getenv('DEVMAN_TOKEN')
+    admin_chat_id = os.getenv('TELEGRAM_CHAT_ID')
+    logger.addHandler(MyLogsHandler(bot=bot, chat_id=admin_chat_id))
     logger.info("Bot started")
     timestamp = None
 
     while True:
         try:
-            reviews = get_reviews(DEVMAN_TOKEN, timestamp)
+            reviews = get_reviews(devman_token, timestamp)
             if reviews['status'] == 'found':
                 for attempt in reviews['new_attempts']:
                     text = f'У вас проверили работу [«{attempt["lesson_title"]}»]({attempt["lesson_url"]})\n'
                     text += 'К сожалению, в работе есть ошибки.' if attempt['is_negative'] \
                         else 'Преподавателю все понравилось, можно ладить дальше.'
-                    BOT.send_message(text=text, chat_id=ADMIN_CHAT_ID, parse_mode='Markdown')
+                    bot.send_message(text=text, chat_id=admin_chat_id, parse_mode='Markdown')
             if "timestamp_to_request" in reviews:
                 timestamp = reviews['timestamp_to_request']
             else:
